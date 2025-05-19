@@ -26,6 +26,23 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("WebApiCon")));
 
 var app = builder.Build();
 
+
+using (var scope = app.Services.CreateScope())
+{
+var services = scope.ServiceProvider;
+var dbContext = services.GetRequiredService<OrgFormDbContext>();
+
+try
+{
+dbContext.Database.Migrate();
+}
+catch (Exception ex)
+{
+Console.WriteLine($"Migration error: {ex.Message}");
+}
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -39,6 +56,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+builder.Services.AddControllers();
 app.MapControllers();
 
 app.Run();
